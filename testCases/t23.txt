@@ -1,0 +1,12 @@
+Clinton0.txt
+Clinton1.txt
+Clinton2.txt
+Clinton3.txt
+Clinton4.txt
+speech0.txt
+speech1.txt
+speech2.txt
+speech3.txt
+f1.txt
+f2.txt
+f3.txt

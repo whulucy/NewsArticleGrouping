@@ -1,0 +1,8 @@
+#test case t25
+Clinton0.txt
+cat0.txt
+cat1.txt
+seaLion0.txt		seaLion1.txt
+speech0.txt
+speech1.txt
+mockingBird0.txt

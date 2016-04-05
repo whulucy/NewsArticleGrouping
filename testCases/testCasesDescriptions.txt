@@ -1,0 +1,31 @@
+Clinton0 is the mother copy 434 words in total
+Clinton1 is the exact copy of Clinton0
+Clinton2 (43 words replaced out of 435 words, about 10% different from Clinton0)
+Clinton3 (add 90 words of Operating Systems, about 20% different from Clinton0)
+Clinton4 (add 303 words of OS, about 41% different from Clinton0)
+
+seaLion0 is the mother copy  551 words in total
+seaLion1 is the exact copy of seaLion0
+seaLion2 (replaced 30 words of seaLion0, about 5% difference)
+seaLion3 (replaced 60 words of seaLion0, about 10% difference)
+seaLion4 (replaced 117 words of seaLion0, about 20% difference)
+seaLion5 (added 197 words to seaLion0, about 35% difference)
+seaLion6 (added 385 words to seaLion0, about 70% different from seaLion0)
+
+cat0 is the mother copy (100words in total)
+cat1 is the exact copy of cat0
+cat2 (delete 8 words from cat0)
+cat3 is the copy of cat2
+
+speech0 is about 2419words
+speech1 is the exact copy of speech0
+speech2(add 3000 words to speech0, doubled the original words count of speech0 )
+speech3(replaced 1200 words, about 50% different)
+
+mockingBird0 is the mother copy (3585words)
+mockingBird1 replaced 1170 words of mockingBird0, about 30% different in words count
+mockingBird2 added (2302 words to mockingBird0, about 50% different from mockingBird0)
+
+plant0 is the mother copy with 7101 words in total
+plant1 is the exact copy of plant0
+plant2 added about 8000 words to the plant0 copy

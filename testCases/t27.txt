@@ -1,0 +1,9 @@
+plant0.txt
+plant1.txt
+plant2.txt
+speech0.txt
+speech1.txt
+speech2.txt
+f4.txt
+f5.txt
+f6.txt
