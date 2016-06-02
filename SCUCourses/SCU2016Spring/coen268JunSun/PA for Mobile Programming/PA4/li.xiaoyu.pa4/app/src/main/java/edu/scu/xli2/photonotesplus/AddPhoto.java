@@ -2,6 +2,7 @@ package edu.scu.xli2.photonotesplus;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -10,6 +11,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -32,7 +37,7 @@ import java.io.IOException;
 /**
  * Created by Xiaoyu on 5/10/16.
  */
-public class AddPhoto extends AppCompatActivity {
+public class AddPhoto extends AppCompatActivity implements SensorEventListener {
     private EditText caption_edit;
     private Button take_photoBtn;
     private Button save_photoBtn;
@@ -43,7 +48,14 @@ public class AddPhoto extends AppCompatActivity {
     private PhotoDbHelper dbHelper;
     Cursor cursor;
     String fileName;  //original fileName
-    String thumbFile;
+    String thumbFile;  //thumbFile generated
+
+    //section for the shake sensor part
+    private SensorManager mSensorManager;
+    private float mAccel; // acceleration apart from gravity
+    private float mAccelCurrent; // current acceleration including gravity
+    private float mAccelLast; // last acceleration including gravity
+
 
     //section for adding audio recording
     private static final String LOG_TAG = "AudioRecordTest";
@@ -115,7 +127,16 @@ public class AddPhoto extends AppCompatActivity {
             }
 
         });
+
+
+        //initialization for the sensor part
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccel = 0.00f;
+        mAccelCurrent = SensorManager.GRAVITY_EARTH;
+        mAccelLast = SensorManager.GRAVITY_EARTH;
     }
+
+    //section for the voice recording begin
     private void startRecording() {
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -153,18 +174,51 @@ public class AddPhoto extends AppCompatActivity {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        if (mRecorder != null) {
-            mRecorder.release();
-            mRecorder = null;
-        }
+//    public void onPause() {
+//        super.onPause();
+//        if (mRecorder != null) {
+//            mRecorder.release();
+//            mRecorder = null;
+//        }
+//
+//        if (mPlayer != null) {
+//            mPlayer.release();
+//            mPlayer = null;
+//        }
+//    }
+    //Section for the recording ends
 
-        if (mPlayer != null) {
-            mPlayer.release();
-            mPlayer = null;
+    //section for the sensor
+    public void onSensorChanged(SensorEvent se) {
+        float x = se.values[0];
+        float y = se.values[1];
+        float z = se.values[2];
+        mAccelLast = mAccelCurrent;
+        mAccelCurrent = (float) Math.sqrt((double) (x*x + y*y + z*z));
+        float delta = mAccelCurrent - mAccelLast;
+        mAccel = mAccel * 0.9f + delta * 0.1f; // perform low-cut filter
+
+        displayAcceleration();
+    }
+
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+    private void displayAcceleration() {
+        float accel = Math.abs( mAccel);
+        if (accel > 0.2f) {
+            preview.clear();
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+
 
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -209,20 +263,20 @@ public class AddPhoto extends AppCompatActivity {
         startActivityForResult(intent, TAKE_PICTURE);
     }
 
-        public void onActivityResult(int requestCode, int resultCode, Intent data) {
-            if (requestCode != TAKE_PICTURE || resultCode != RESULT_OK) return;
-            try {
-                Bitmap picture = BitmapFactory.decodeFile(fileName);
-                Drawable drawable = new BitmapDrawable(getResources(), picture);
-                preview.setBackground(drawable);
-                Bitmap resized = ThumbnailUtils.extractThumbnail(picture, 120, 120);
-                FileOutputStream fos = new FileOutputStream(thumbFile);
-                resized.compress(Bitmap.CompressFormat.JPEG, 90, fos);
-                fos.flush(); fos.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != TAKE_PICTURE || resultCode != RESULT_OK) return;
+        try {
+            Bitmap picture = BitmapFactory.decodeFile(fileName);
+            Drawable drawable = new BitmapDrawable(getResources(), picture);
+            preview.setBackground(drawable);
+            Bitmap resized = ThumbnailUtils.extractThumbnail(picture, 120, 120);
+            FileOutputStream fos = new FileOutputStream(thumbFile);
+            resized.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+            fos.flush(); fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
 
     public void savePhotoFunc(View view){
