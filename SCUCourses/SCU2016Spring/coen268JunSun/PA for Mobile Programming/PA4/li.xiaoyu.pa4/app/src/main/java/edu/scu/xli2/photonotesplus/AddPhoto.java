@@ -209,38 +209,6 @@ public class AddPhoto extends AppCompatActivity {
         startActivityForResult(intent, TAKE_PICTURE);
     }
 
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        if (requestCode != TAKE_PICTURE || resultCode != RESULT_OK) return;
-//        //super.onActivityResult(requestCode, resultCode, data);
-//            Uri selectedImage = imageUri;
-//            getContentResolver().notifyChange(selectedImage, null);
-//            ContentResolver cr = getContentResolver();
-//            Bitmap bitmap;
-//                try {
-//                    bitmap = android.provider.MediaStore.Images.Media
-//                            .getBitmap(cr, selectedImage);
-//                        Drawable drawable = new BitmapDrawable(getResources(), bitmap);
-//                        preview.setBackground(drawable);
-//                    Toast.makeText(this, selectedImage.toString(), Toast.LENGTH_LONG).show();
-//                    FileOutputStream out = null;
-//                    try {
-//                        out = new FileOutputStream(selectedImage.getPath());
-//                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-//                        // PNG is a lossless format, the compression factor (100) is ignored
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//
-//                    }
-//                } catch (Exception e) {
-//                    Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT)
-//                            .show();
-//                    Log.e("Camera", e.toString());
-//                }
-//
-//
-//    }
-
         public void onActivityResult(int requestCode, int resultCode, Intent data) {
             if (requestCode != TAKE_PICTURE || resultCode != RESULT_OK) return;
             try {
