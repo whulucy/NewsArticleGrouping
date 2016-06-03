@@ -1,18 +1,16 @@
 package edu.scu.xli2.photonotesplus;
 
-import android.location.Location;
-
 /**
  * Created by Xiaoyu on 5/10/16.
  */
 public class MyPhoto {
 
     private String description, path;
-    public Location mLastLocation;
+    public String mLastLocation;
     public String revisedPath;
     public String voiceFile;
     public MyPhoto(String description, String path, String revisedPath, String voiceFile,
-                   Location mLastLocation) {
+                   String mLastLocation) {
         this.description = description;
         this.path = path;
         this.revisedPath = revisedPath;

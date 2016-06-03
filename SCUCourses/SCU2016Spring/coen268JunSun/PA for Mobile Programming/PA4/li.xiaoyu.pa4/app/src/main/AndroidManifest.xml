@@ -4,7 +4,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
 
     <application
@@ -14,10 +16,15 @@
         android:supportsRtl="true"
         android:screenOrientation="portrait"
         android:theme="@style/AppTheme">
+
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <uses-feature android:name="android.hardware.camera"
             android:required="true" />
-        <uses-permission android:name="android.permission.CAMERA" />
-        <activity android:name="edu.scu.xli2.photonotesplus.MainActivity" android:screenOrientation="portrait">
+
+        <activity android:name="edu.scu.xli2.photonotesplus.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,7 +32,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="edu.scu.xli2.photonotesplus.AddPhoto" android:screenOrientation="portrait">
+        <activity android:name="edu.scu.xli2.photonotesplus.AddPhoto"
+            android:screenOrientation="portrait">
 
 
         </activity>

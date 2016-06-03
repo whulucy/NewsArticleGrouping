@@ -71,7 +71,7 @@ public class PhotoDbHelper extends SQLiteOpenHelper {
         contentValues.put("description", my_photo.getDescription());
         contentValues.put("photoPath", my_photo.getPath());
         contentValues.put("revisedPath", my_photo.revisedPath);
-        contentValues.put("location",  my_photo.mLastLocation.toString());
+        contentValues.put("location",  my_photo.mLastLocation);
         contentValues.put("voiceFile", my_photo.voiceFile);
 
         db.insert(DATABASE_TABLE, null, contentValues);

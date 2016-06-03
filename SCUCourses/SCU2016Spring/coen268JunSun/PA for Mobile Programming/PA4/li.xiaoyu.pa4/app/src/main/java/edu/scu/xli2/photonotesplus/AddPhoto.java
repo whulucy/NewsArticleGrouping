@@ -16,6 +16,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.ThumbnailUtils;
@@ -30,6 +31,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,7 +42,10 @@ import java.io.IOException;
 /**
  * Created by Xiaoyu on 5/10/16.
  */
-public class AddPhoto extends AppCompatActivity implements SensorEventListener {
+public class AddPhoto extends AppCompatActivity implements SensorEventListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
     private EditText caption_edit;
     private Button take_photoBtn;
     private Button save_photoBtn;
@@ -49,6 +57,7 @@ public class AddPhoto extends AppCompatActivity implements SensorEventListener {
     Cursor cursor;
     String fileName;  //original fileName
     String thumbFile;  //thumbFile generated
+    MyPhoto myPhoto;
 
     //section for the shake sensor part
     private SensorManager mSensorManager;
@@ -68,11 +77,16 @@ public class AddPhoto extends AppCompatActivity implements SensorEventListener {
     private MediaPlayer mPlayer = null;
 
     //section for adding geoLocation
-    Location mLastLocation = new Location ("dummyprovider");
-    String revisedPath = "dummyPath";
+    String mLastLocation = "";
+    String revisedPath = "";
 
     //section for photo preview
     TouchDrawView preview;
+
+    //get the location
+    GoogleApiClient mGoogleApiClient = null;
+//    String mLatitudeText;
+//    String mLongitudeText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,11 +97,14 @@ public class AddPhoto extends AppCompatActivity implements SensorEventListener {
         save_photoBtn = (Button) findViewById(R.id.button_save);
         dbHelper = new PhotoDbHelper(getApplicationContext());
         verifyStoragePermissions(this);
+        verifyMapPermissions(this);
         preview = (TouchDrawView)findViewById(R.id.photo_preview);
+
+        maxId = dbHelper.getMaxRecID() + 1;
 
         //audio part
         voiceFile = Environment.getExternalStorageDirectory().getAbsolutePath();
-        voiceFile += "/audiorecordtest.3gp";
+        voiceFile += "/audiorecordtest" + maxId + ".3gp";
         mRecordButton = (Button)findViewById(R.id.button_record);
         mRecordButton.setText("Start recording");
         mRecordButton.setOnClickListener(new View.OnClickListener() {
@@ -134,6 +151,15 @@ public class AddPhoto extends AppCompatActivity implements SensorEventListener {
         mAccel = 0.00f;
         mAccelCurrent = SensorManager.GRAVITY_EARTH;
         mAccelLast = SensorManager.GRAVITY_EARTH;
+
+        //section for the map
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
     }
 
     //section for the voice recording begin
@@ -248,12 +274,32 @@ public class AddPhoto extends AppCompatActivity implements SensorEventListener {
         }
     }
 
+
+    // Storage Permissions
+    private static final int REQUEST_MAP = 2;
+    private static String[] PERMISSIONS_MAP = {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
+    public static void verifyMapPermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_MAP,
+                    REQUEST_MAP
+            );
+        }
+    }
     public void takePhotoFunc(View view){
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        maxId = dbHelper.getMaxRecID() + 1;
         File photo = new File(Environment.getExternalStorageDirectory(),  maxId + fileExt);
         String caption = caption_edit.getText().toString();
-        MyPhoto myPhoto = new MyPhoto(caption, photo.getPath(),revisedPath, voiceFile, mLastLocation);
+        revisedPath = photo.getPath();
+        myPhoto = new MyPhoto(caption, photo.getPath(),revisedPath, voiceFile, mLastLocation);
         dbHelper.add(myPhoto);
         intent.putExtra(MediaStore.EXTRA_OUTPUT,
                 Uri.fromFile(photo));
@@ -280,7 +326,59 @@ public class AddPhoto extends AppCompatActivity implements SensorEventListener {
 
 
     public void savePhotoFunc(View view){
+        preview.setDrawingCacheEnabled(true);
+        Bitmap b = preview.getDrawingCache();
+
+        Bitmap resized = ThumbnailUtils.extractThumbnail(b, 120, 120);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(revisedPath);
+            resized.compress(Bitmap.CompressFormat.JPEG, 120, fos);
+            fos.flush();
+            fos.close();
+            myPhoto.setPath(revisedPath);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
         startActivity(new Intent(this, MainActivity.class));
         finish();
+    }
+
+    public void onConnectionSuspended(int var1){
+
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        try {
+            Location location = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+            mLastLocation = Location.convert(location.getLatitude(), Location.FORMAT_DEGREES) + " " + Location.convert(location.getLongitude(), Location.FORMAT_DEGREES);
+            Log.i(mLastLocation,"location");
+        }catch (SecurityException exception){
+            exception.printStackTrace();
+        }
+    }
+
+    public void onLocationChanged(Location location)
+    {
+
+    }
+
+    public void onConnectionFailed(ConnectionResult var1){
+
+    }
+
+    public void onStatusChanged(String provider, int status, Bundle extras){
+
+    }
+
+    public void onProviderEnabled(String provider){
+
+    }
+
+    public void onProviderDisabled(String provider){
+
     }
 }
